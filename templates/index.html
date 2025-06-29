@@ -197,6 +197,12 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     }
 
+    #loading {
+      display: none;
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
     footer {
       margin-top: auto;
       padding: 20px;
@@ -230,6 +236,8 @@
     <button type="submit" id="submitBtn" disabled>Convert to PDF</button>
   </form>
 
+  <div id="loading">⏳ Converting… Please wait.</div>
+
   <footer>
     &copy; 2025 Foto-To-pdf | Convert photos to PDF free, forever.
   </footer>
@@ -241,6 +249,7 @@
     const uploadForm = document.getElementById('uploadForm');
     const submitBtn = document.getElementById('submitBtn');
     const toggle = document.getElementById('darkToggle');
+    const loading = document.getElementById('loading');
     let filesToUpload = [];
 
     dropArea.addEventListener('click', () => fileInput.click());
@@ -262,7 +271,6 @@
         nameSpan.textContent = file.name;
 
         const removeBtn = document.createElement('button');
-        removeBtn.type = 'button'; // Prevent form submit
         removeBtn.textContent = '❌';
         removeBtn.onclick = () => {
           filesToUpload[index] = null;
@@ -302,6 +310,8 @@
 
     uploadForm.addEventListener('submit', e => {
       e.preventDefault();
+      loading.style.display = 'block';
+      submitBtn.disabled = true;
 
       const formData = new FormData();
       filesToUpload.forEach(file => {
@@ -314,12 +324,16 @@
       })
       .then(res => res.blob())
       .then(blob => {
+        loading.style.display = 'none';
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = 'output.pdf';
         a.click();
         URL.revokeObjectURL(url);
+      })
+      .catch(() => {
+        loading.textContent = "❌ Something went wrong. Please try again.";
       });
     });
 
