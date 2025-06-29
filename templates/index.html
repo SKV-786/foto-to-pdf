@@ -185,7 +185,6 @@
       margin-top: 25px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       transition: all 0.3s ease;
-      min-width: 180px;
     }
 
     button[type="submit"]:disabled {
@@ -208,33 +207,25 @@
 </head>
 <body>
   <h1>Foto-To-pdf</h1>
-
   <div class="toggle-container">
     <label class="switch">
       <input type="checkbox" id="darkToggle">
       <span class="slider"></span>
     </label>
   </div>
-
   <div class="description">
     <strong>Free Image to PDF Converter</strong><br>
     Convert unlimited photos into a single PDF — no signup, no limits. Just drag, drop, and download. Fast & 100% private.
   </div>
-
   <div id="dropArea">
     <span>📂 Drop images here or click to upload</span>
     <input type="file" id="fileInput" accept="image/*" style="display:none;" multiple>
   </div>
-
   <form id="uploadForm" action="/convert" method="POST" enctype="multipart/form-data">
     <div class="file-list" id="fileList"></div>
     <button type="submit" id="submitBtn" disabled>Convert to PDF</button>
   </form>
-
-  <footer>
-    &copy; 2025 Foto-To-pdf | Convert photos to PDF free, forever.
-  </footer>
-
+  <footer>&copy; 2025 Foto-To-pdf | Convert photos to PDF free, forever.</footer>
   <script>
     const dropArea = document.getElementById('dropArea');
     const fileInput = document.getElementById('fileInput');
@@ -247,11 +238,8 @@
     dropArea.addEventListener('click', () => fileInput.click());
 
     function updateButtonState() {
-      const hasFiles = filesToUpload.filter(f => f !== null).length > 0;
-      submitBtn.disabled = !hasFiles;
-      if (!hasFiles) {
-        submitBtn.innerHTML = 'Convert to PDF';
-      }
+      const validFiles = filesToUpload.filter(f => f !== null);
+      submitBtn.disabled = validFiles.length === 0;
     }
 
     function handleFiles(files) {
@@ -308,7 +296,6 @@
 
     uploadForm.addEventListener('submit', e => {
       e.preventDefault();
-
       const validFiles = filesToUpload.filter(f => f !== null);
       if (validFiles.length === 0) return;
 
@@ -317,17 +304,14 @@
         formData.append('images', file);
       });
 
-      submitBtn.innerHTML = 'Converting...';
+      submitBtn.innerHTML = '⏳ Converting...';
       submitBtn.disabled = true;
 
       fetch('/convert', {
         method: 'POST',
         body: formData
       })
-      .then(res => {
-        if (!res.ok) throw new Error('Conversion failed');
-        return res.blob();
-      })
+      .then(res => res.blob())
       .then(blob => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -335,12 +319,9 @@
         a.download = 'output.pdf';
         a.click();
         URL.revokeObjectURL(url);
+        filesToUpload = [];
+        fileList.innerHTML = '';
         submitBtn.innerHTML = 'Convert to PDF';
-        updateButtonState();
-      })
-      .catch(() => {
-        submitBtn.innerHTML = 'Convert to PDF';
-        alert('Something went wrong. Please try again.');
         updateButtonState();
       });
     });
