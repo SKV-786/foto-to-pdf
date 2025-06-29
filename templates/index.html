@@ -262,6 +262,7 @@
         nameSpan.textContent = file.name;
 
         const removeBtn = document.createElement('button');
+        removeBtn.type = 'button'; // Prevent form submit
         removeBtn.textContent = '❌';
         removeBtn.onclick = () => {
           filesToUpload[index] = null;
