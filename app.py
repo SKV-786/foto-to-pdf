@@ -26,7 +26,7 @@ def convert():
         if image.mode != 'RGB':
             image = image.convert('RGB')
 
-        max_size = 1600
+        max_size = 1024
         image.thumbnail((max_size, max_size), Image.LANCZOS)
 
         image_list.append(image)
