@@ -7,7 +7,7 @@
   <meta name="description" content="Convert unlimited photos to a single PDF for free. Fast, secure, and no registration needed. Drag and drop images to instantly generate your PDF.">
   <meta name="keywords" content="image to pdf, unlimited photo to pdf, convert images to pdf, free photo to pdf tool, online pdf generator">
   <meta name="robots" content="index, follow">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Quicksand:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600&display=swap" rel="stylesheet">
   <style>
     html, body {
       margin: 0;
@@ -274,83 +274,12 @@
         removeBtn.onclick = () => {
           filesToUpload[index] = null;
           div.style.animation = 'popOut 0.3s ease-in forwards';
-          setTimeout(() => div.remove(), 250);
-          updateButtonState();
+          setTimeout(() => {
+            div.remove();
+            updateButtonState();
+          }, 250);
         };
 
         div.appendChild(nameSpan);
         div.appendChild(removeBtn);
-        fileList.appendChild(div);
-      });
-      updateButtonState();
-    }
-
-    fileInput.addEventListener('change', () => handleFiles(fileInput.files));
-
-    ['dragenter', 'dragover'].forEach(evt => {
-      document.body.addEventListener(evt, e => {
-        e.preventDefault();
-        dropArea.classList.add('dragover');
-      });
-    });
-
-    ['dragleave', 'drop'].forEach(evt => {
-      document.body.addEventListener(evt, e => {
-        e.preventDefault();
-        dropArea.classList.remove('dragover');
-      });
-    });
-
-    document.body.addEventListener('drop', e => {
-      if (e.dataTransfer.files.length > 0) {
-        handleFiles(e.dataTransfer.files);
-      }
-    });
-
-    uploadForm.addEventListener('submit', e => {
-      e.preventDefault();
-
-      const validFiles = filesToUpload.filter(file => file);
-      if (validFiles.length === 0) return;
-
-      const formData = new FormData();
-      validFiles.forEach(file => {
-        formData.append('images', file);
-      });
-
-      submitBtn.innerHTML = 'Converting...';
-      submitBtn.disabled = true;
-
-      fetch('/convert', {
-        method: 'POST',
-        body: formData
-      })
-      .then(res => res.blob())
-      .then(blob => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'output.pdf';
-        a.click();
-        URL.revokeObjectURL(url);
-        submitBtn.innerHTML = 'Convert to PDF';
-        updateButtonState();
-      })
-      .catch(() => {
-        alert('Something went wrong!');
-        submitBtn.innerHTML = 'Convert to PDF';
-        updateButtonState();
-      });
-    });
-
-    toggle.addEventListener('change', () => {
-      document.body.classList.toggle('dark', toggle.checked);
-    });
-
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      toggle.checked = true;
-      document.body.classList.add('dark');
-    }
-  </script>
-</body>
-</html>
+       
