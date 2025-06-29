@@ -7,7 +7,6 @@
   <meta name="description" content="Convert unlimited photos to a single PDF for free. Fast, secure, and no registration needed. Drag and drop images to instantly generate your PDF.">
   <meta name="keywords" content="image to pdf, unlimited photo to pdf, convert images to pdf, free photo to pdf tool, online pdf generator">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://yourdomain.com/">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Quicksand:wght@500;600&display=swap" rel="stylesheet">
   <style>
     html, body {
@@ -175,24 +174,30 @@
       cursor: pointer;
     }
 
-    button[type="submit"] {
+    .form-actions {
+      width: 520px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    #submitBtn {
       background: linear-gradient(to right, #f7971e, #fd5e53);
       color: white;
       font-size: 18px;
       padding: 12px 30px;
       border-radius: 10px;
       border: none;
-      margin-top: 25px;
+      margin-top: 20px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       transition: all 0.3s ease;
     }
 
-    button[type="submit"]:disabled {
+    #submitBtn:disabled {
       background: #ccc;
       cursor: not-allowed;
     }
 
-    button[type="submit"]:hover:enabled {
+    #submitBtn:hover:enabled {
       transform: scale(1.05);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     }
@@ -207,25 +212,35 @@
 </head>
 <body>
   <h1>Foto-To-pdf</h1>
+
   <div class="toggle-container">
     <label class="switch">
       <input type="checkbox" id="darkToggle">
       <span class="slider"></span>
     </label>
   </div>
+
   <div class="description">
     <strong>Free Image to PDF Converter</strong><br>
     Convert unlimited photos into a single PDF — no signup, no limits. Just drag, drop, and download. Fast & 100% private.
   </div>
+
   <div id="dropArea">
     <span>📂 Drop images here or click to upload</span>
     <input type="file" id="fileInput" accept="image/*" style="display:none;" multiple>
   </div>
+
   <form id="uploadForm" action="/convert" method="POST" enctype="multipart/form-data">
     <div class="file-list" id="fileList"></div>
-    <button type="submit" id="submitBtn" disabled>Convert to PDF</button>
+    <div class="form-actions">
+      <button type="submit" id="submitBtn" disabled>Convert to PDF</button>
+    </div>
   </form>
-  <footer>&copy; 2025 Foto-To-pdf | Convert photos to PDF free, forever.</footer>
+
+  <footer>
+    &copy; 2025 Foto-To-pdf | Convert photos to PDF free, forever.
+  </footer>
+
   <script>
     const dropArea = document.getElementById('dropArea');
     const fileInput = document.getElementById('fileInput');
@@ -238,8 +253,8 @@
     dropArea.addEventListener('click', () => fileInput.click());
 
     function updateButtonState() {
-      const validFiles = filesToUpload.filter(f => f !== null);
-      submitBtn.disabled = validFiles.length === 0;
+      const hasValid = filesToUpload.some(file => file !== null);
+      submitBtn.disabled = !hasValid;
     }
 
     function handleFiles(files) {
@@ -259,10 +274,8 @@
         removeBtn.onclick = () => {
           filesToUpload[index] = null;
           div.style.animation = 'popOut 0.3s ease-in forwards';
-          setTimeout(() => {
-            div.remove();
-            updateButtonState();
-          }, 250);
+          setTimeout(() => div.remove(), 250);
+          updateButtonState();
         };
 
         div.appendChild(nameSpan);
@@ -296,7 +309,8 @@
 
     uploadForm.addEventListener('submit', e => {
       e.preventDefault();
-      const validFiles = filesToUpload.filter(f => f !== null);
+
+      const validFiles = filesToUpload.filter(file => file);
       if (validFiles.length === 0) return;
 
       const formData = new FormData();
@@ -304,7 +318,7 @@
         formData.append('images', file);
       });
 
-      submitBtn.innerHTML = '⏳ Converting...';
+      submitBtn.innerHTML = 'Converting...';
       submitBtn.disabled = true;
 
       fetch('/convert', {
@@ -319,8 +333,11 @@
         a.download = 'output.pdf';
         a.click();
         URL.revokeObjectURL(url);
-        filesToUpload = [];
-        fileList.innerHTML = '';
+        submitBtn.innerHTML = 'Convert to PDF';
+        updateButtonState();
+      })
+      .catch(() => {
+        alert('Something went wrong!');
         submitBtn.innerHTML = 'Convert to PDF';
         updateButtonState();
       });
